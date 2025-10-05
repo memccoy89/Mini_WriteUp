@@ -1,0 +1,163 @@
+---
+title: "Assessing Healthcare Engagement and Vaccination Trends in Emerging Adults"
+author: "Megan McCoy"
+format: html
+editor: visual
+toc: true
+---
+
+## Data Background
+
+The data set comes from my current and ongoing research project “Assessing Healthcare Engagement and Vaccination Trends in Emerging Adults.” The data has yet to be analyzed for the project and the results here will serve as preliminary findings and likely provide direction for further analysis. As you will see, there is not a set summary statistics section. The data is categorical so providing an overview looking at frequencies is a better representation of the data at hand.
+
+## Project Abstract
+
+The study aims to survey emerging adults (ages 18-34) to explore vaccine hesitancy for influenza and COVID-19 vaccinations, as well as general healthcare utilization and behaviors. The sample population will primarily come from the Eugene-metro area and surrounding Lane County, Oregon, with additional participants from the Portland-metro area. Current literature and data have shown that the study population has low rates of healthcare utilization and vaccination, yet they exhibit heightened health needs often due to lifestyle factors (Tran & Silvestri-Elmore, 2021; Oregon Immunization Program, 2023). Using the Qualtrics platform, the survey will be distributed with the support of local partners. The project will assess the reasons behind vaccine hesitancy, identify accessibility barriers, and explore resources that may increase vaccine acceptance and general healthcare utilization. Additionally, the survey serves as a health promotion tool by incorporating educational questions. The findings aim to inform the development of targeted resources and interventions to promote vaccination and address public health gaps. While the results are most directly applicable to Lane County, the study offers implications for the broader teen and emerging adult population, provides recommendations for future research, and offers a model for conducting moderate-scale, community-based research.
+
+The survey was distributed for an 8-week period (5/15/2025-7/14/25) and received a total of 91 complete responses, eligible for data analysis. Exclusion criteria included checking 'I do not agree to take part in the study' or incomplete surveys, as they were considered revoked consent.
+
+## Age of Survey Responses and Target Age Range
+
+```{r}
+#| include: false
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(ggstatsplot)
+# Load the data
+data <- read_csv("QualtricsResults_LabelV.csv")
+# filter for where finished = true
+  data <- data %>% filter(Finished == 1)
+```
+
+```{r}
+#| label: Figure 1
+#| echo: false
+#| fig-cap: Age Distribution of Survey Responses
+#create a bar chart of the age variable
+ ggplot(data, aes(x = Age)) +
+   geom_bar(fill = "salmon", color = "black") +
+   labs(title = "Age Distribution of Survey Responses",
+        x = "Age",
+        y = "Count") +
+   ggthemes::theme_stata() + scale_color_stata() + scale_shape_stata()
+```
+
+As shown in Figure 1, the target demographic of emerging adults was the largest respondent to the survey. Although the survey was open to anyone 18 years or older, the distribution methods adequately reached the target population.
+
+## Population Description
+
+```{r}
+#| echo: false
+# filter data for ages 18-34
+  data_18_34 <- data %>% filter(Age >= 18 & Age <= 34)
+# filter for where finished = true
+  data_18_34 <- data_18_34 %>% filter(Finished == 1)
+```
+
+```{r}
+#| echo: false
+#total of observation in the 18-34 age range
+nrow(data_18_34)
+```
+
+```{r}
+#| echo: false
+#count of observations where student stat = yes in 18-34 age range
+nrow(data_18_34 %>% filter(`Student Stat` == "Yes"))
+#also provide as precent
+nrow(data_18_34 %>% filter(`Student Stat` == "Yes")) / nrow(data_18_34) * 100
+```
+
+```{r}
+#| echo: false
+# mode of zip variable is data 18_34
+  mode_zip <- as.numeric(names(sort(table(data_18_34$Zip), decreasing = TRUE)[1]))
+  mode_zip
+```
+
+There was a total of 74 survey responses eligible for data analysis from the target population. 59 of these responses (79.7%) indicated they were current or recent college students. The most common zip code of residence reported was 97401, which encapsulates the Eugene-metro area. In the Eugene, Oregon area. The most prominent school systems include University of Oregon, Bushnell University, and Lane Community College. The project was done in partnership with University of Oregon's School of Planning, Public Policy, and Management through which there was a distribution emphasis around campus. Thus, It is likely that many of the respondents were affiliated with the University of Oregon.
+
+## Flu Vaccination Acceptance
+
+```{r}
+#| include: false
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+#| label: Figure 2
+#| fig-cap: "Pie Chart of Flu Vaccination Acceptance among Emerging Adults"
+#| echo: false
+
+  data_pie <- data_18_34 %>%
+    count(Vac2) %>%                        # count how many in each group
+    mutate(percent = n / sum(n) * 100,     # calculate percentage
+         label = paste0(round(percent, 1), "%"))  # make a label like "64.3%"
+
+  ggplot(data_pie, aes(x = "", y = n, fill = Vac2)) +
+    geom_bar(stat = "identity", width = 1, color = "black") +
+    coord_polar(theta = "y") +
+    geom_text(aes(label = label),
+            position = position_stack(vjust = 0.5), 
+            size = 4) +
+    labs(title = "Flu Vaccination Acceptance among Emerging Adults",
+       fill = "Flu Vaccination Acceptance") +
+    theme_void() +
+   theme(legend.position = "right") +
+    scale_fill_brewer(palette = "Set3")
+```
+
+Displayed in Figure 2, 39.2% of emerging adults responded 'Somewhat agree' to the statement "I get a flu vaccine every year." Following this, 32.4% responded 'Strongly agree.'The response to statements as the like have been commonly used to equate acceptance of vaccination (Larson et al., 2015; Lazarus et al., 2023; Zheng et al., 2023). Following this, it could be inferred that 71.6% of emerging adults are acceptant of Flu vaccinations to some degree, and 32.4% receive them regularly.
+
+## COVID Vaccination Acceptance
+
+```{r}
+#| include: false
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+#| label: Figure 3
+#| fig-cap: "Pie Chart of COVID Vaccination Acceptance among Emerging Adults"
+#| echo: false
+
+  data_pie2 <- data_18_34 %>%
+    count(Vac3) %>%                        # count how many in each group
+    mutate(percent = n / sum(n) * 100,     # calculate percentage
+         label = paste0(round(percent, 1), "%"))  # make a label like "64.3%"
+
+  ggplot(data_pie2, aes(x = "", y = n, fill = Vac3)) +
+    geom_bar(stat = "identity", width = 1, color = "black") +
+    coord_polar(theta = "y") +
+    geom_text(aes(label = label),
+            position = position_stack(vjust = 0.5), 
+            size = 4) +
+    labs(title = "COVID Vaccination Acceptance among Emerging Adults",
+       fill = "COVID Vaccination Acceptance") +
+    theme_void() +
+   theme(legend.position = "right") +
+    scale_fill_brewer(palette = "Set3")
+```
+
+Displayed in Figure 3, 23% of emerging adults responded 'Somewhat agree' to the statement "I get a COVID vaccine every year." Following this, 25.7% responded 'Strongly agree.' Again, knowing that this can be a useful measure of vaccination acceptance (Larson et al., 2015; Lazarus et al., 2023; Zheng et al., 2023). Following this, it could be inferred that 48.7% of emerging adults acceptant of COVID vaccinations to some degree, and 25.7% may receive them regularly.
+
+## Preliminary Observations
+
+Overall, it could be inferred that the emerging adult population is generally accepting of both Flu and COVID vaccinations. In comparison, there appears to be a higher acceptance of Flu vaccinations than COVID vaccinations. There are a variety of contributing factors that may influence this. In particular, the survey also looks at barriers so it is very possible that an respondent could have reported 'somewhat disagree' to receiving a particular vaccination due to the barriers they consistently face to accessing one, rather than as an indication of vaccine hesitancy. On a preliminary level, it is promising to see at least 50-60% levels of acceptance across the vaccination types as it indicates that emerging adults are making consistent proactive efforts to protect their health, as well as those around them.
+
+## References
+
+Larson, H. J., Jarrett, C., Schulz, W. S., Chaudhuri, M., Zhou, Y., Dube, E., Schuster, M., MacDonald, N. E., & Wilson, R. (2015). Measuring vaccine hesitancy: The development of a survey tool. Vaccine, 33(34), 4165–4175. https://doi.org/10.1016/j.vaccine.2015.04.037
+
+Lazarus, J. V., Wyka, K., White, T. M., Picchio, C. A., Gostin, L. O., Larson, H. J., Rabin, K., Ratzan, S. C., Kamarulzaman, A., & El-Mohandes, A. (2023). A survey of COVID-19 vaccine acceptance across 23 countries in 2022. Nature Medicine, 29(29), 1–10. https://doi.org/10.1038/s41591-022-02185-4
+
+Oregon Health Authority : Oregon Immunization Program Data and Reports : Vaccines and Immunization : State of Oregon. (2023 reports). Www.oregon.gov. https://www.oregon.gov/oha/ph/preventionwellness/vaccinesimmunization/pages/research.aspx
+
+Tran, D.-M. T., & Silvestri-Elmore, A. (2021, June). Healthcare-seeking behaviors in college students and young adults: a review. Journal of Research in Nursing, 26(4), 320-338. https://doi.org/10.1177/1744987120951594
+
+Zheng, B., Yan, J., Wang, X., Tang, Y., & Xiang, Y. (2023). Using the “4Ps” social marketing strategy to overcome vaccination hesitancy. Saudi Medical Journal, 44(6), 560–596. https://doi.org/10.15537/smj.2023.44.6.20220696
+
